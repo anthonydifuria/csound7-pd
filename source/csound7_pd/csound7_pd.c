@@ -41,10 +41,41 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <strings.h>   // strcasecmp
 #include <ctype.h>
-#include <unistd.h>    // close()
-#include <pthread.h>
+
+// Windows/MSVC ships none of strings.h, unistd.h or pthread.h - found one
+// at a time via real GitHub Actions Windows CI failures (each one only
+// surfaces once the previous is fixed and the build gets further), fixed
+// here with small local shims rather than vendoring a whole compatibility
+// library (e.g. pthreads-win32) for the sake of one mutex and two one-line
+// calls.
+#ifdef _WIN32
+  #include <windows.h>   // CRITICAL_SECTION - stand-in for pthread_mutex_t
+  #include <io.h>        // _close() - stand-in for close()
+  #define strcasecmp _stricmp
+  #define cs7_close  _close
+  typedef CRITICAL_SECTION cs7_mutex_t;
+  #define cs7_mutex_init(m)    InitializeCriticalSection(m)
+  #define cs7_mutex_destroy(m) DeleteCriticalSection(m)
+  #define cs7_mutex_lock(m)    EnterCriticalSection(m)
+  #define cs7_mutex_unlock(m)  LeaveCriticalSection(m)
+  // TryEnterCriticalSection returns nonzero on SUCCESS - opposite of
+  // pthread_mutex_trylock, which returns 0 on success. Negate it once
+  // here so every call site below can keep pthread's convention
+  // ("if (!cs7_mutex_trylock(...))" means "if I got the lock").
+  #define cs7_mutex_trylock(m) (!TryEnterCriticalSection(m))
+#else
+  #include <strings.h>   // strcasecmp
+  #include <unistd.h>    // close()
+  #include <pthread.h>
+  #define cs7_close close
+  typedef pthread_mutex_t cs7_mutex_t;
+  #define cs7_mutex_init(m)    pthread_mutex_init(m, NULL)
+  #define cs7_mutex_destroy(m) pthread_mutex_destroy(m)
+  #define cs7_mutex_lock(m)    pthread_mutex_lock(m)
+  #define cs7_mutex_unlock(m)  pthread_mutex_unlock(m)
+  #define cs7_mutex_trylock(m) pthread_mutex_trylock(m)
+#endif
 
 #define CS7_MAX_PATH 4096
 #define CS7_MAX_CHANNELS 16
@@ -89,7 +120,7 @@ typedef struct _csound7
     volatile long midi_head;
     volatile long midi_tail;
 
-    pthread_mutex_t engine_lock;
+    cs7_mutex_t engine_lock;
 
     t_outlet   *ctl_out;            // rightmost outlet, "anything" (channel dumps etc)
 
@@ -177,7 +208,7 @@ static void *csound7_new(t_symbol *s, int argc, t_atom *argv)
     x->midi_head    = 0;
     x->midi_tail    = 0;
     x->x_f          = 0;
-    pthread_mutex_init(&x->engine_lock, NULL);
+    cs7_mutex_init(&x->engine_lock);
 
     // canvas_getcurrent() only works correctly while Pd is actually in the
     // middle of instantiating this object (i.e. right here, in the "new"
@@ -251,7 +282,7 @@ static void csound7_free(t_csound7 *x)
         x->csound = NULL;
     }
     csound7_rb_free(x);
-    pthread_mutex_destroy(&x->engine_lock);
+    cs7_mutex_destroy(&x->engine_lock);
 }
 
 // ---------------------------------------------------------------------
@@ -262,7 +293,7 @@ static void csound7_free(t_csound7 *x)
 // ---------------------------------------------------------------------
 static void csound7_start_engine(t_csound7 *x, double sr)
 {
-    pthread_mutex_lock(&x->engine_lock);
+    cs7_mutex_lock(&x->engine_lock);
 
     if (x->csound) {
         csoundDestroy(x->csound);
@@ -272,7 +303,7 @@ static void csound7_start_engine(t_csound7 *x, double sr)
     x->csound = csoundCreate(x, NULL);
     if (!x->csound) {
         pd_error(x, "csound7~: csoundCreate failed");
-        pthread_mutex_unlock(&x->engine_lock);
+        cs7_mutex_unlock(&x->engine_lock);
         return;
     }
 
@@ -361,7 +392,7 @@ static void csound7_start_engine(t_csound7 *x, double sr)
 
     csound7_rb_alloc(x, x->ksmps * 4 > 256 ? x->ksmps * 4 : 256);
 
-    pthread_mutex_unlock(&x->engine_lock);
+    cs7_mutex_unlock(&x->engine_lock);
 }
 
 static void csound7_do_reset(t_csound7 *x)
@@ -393,9 +424,9 @@ static void csound7_do_compile(t_csound7 *x, t_symbol *path)
     buf[sz] = 0;
     fclose(f);
 
-    pthread_mutex_lock(&x->engine_lock);
+    cs7_mutex_lock(&x->engine_lock);
     int32_t err = csoundCompileOrc(x->csound, buf, 0);
-    pthread_mutex_unlock(&x->engine_lock);
+    cs7_mutex_unlock(&x->engine_lock);
     free(buf);
 
     if (err != 0)
@@ -454,7 +485,7 @@ static t_int *csound7_perform(t_int *w)
         return w + 3 + x->nchnls_in + x->nchnls_out;
     }
 
-    if (!pthread_mutex_trylock(&x->engine_lock)) {
+    if (!cs7_mutex_trylock(&x->engine_lock)) {
         // 1) write Pd's incoming audio into the input ring buffer
         for (long ch = 0; ch < x->nchnls_in; ch++) {
             t_sample *in = (t_sample *)sigptrs[ch];
@@ -513,7 +544,7 @@ static t_int *csound7_perform(t_int *w)
             x->rb_out_filled -= n;
         }
 
-        pthread_mutex_unlock(&x->engine_lock);
+        cs7_mutex_unlock(&x->engine_lock);
     } else {
         for (long ch = 0; ch < x->nchnls_out; ch++) {
             t_sample *out = (t_sample *)sigptrs[x->nchnls_in + ch];
@@ -926,7 +957,7 @@ static t_symbol *csound7_resolve_path(t_csound7 *x, t_symbol *filename)
     int fd = open_via_path(x->owner_dir ? x->owner_dir->s_name : "", name, "", dirresult,
         &nameresult, CS7_MAX_PATH, 1);
     if (fd >= 0) {
-        close(fd);
+        cs7_close(fd);
         char full[CS7_MAX_PATH];
         snprintf(full, sizeof(full), "%s/%s", dirresult, nameresult ? nameresult : name);
         post("csound7~: resolved '%s' -> '%s' (Pd search path)", name, full);
