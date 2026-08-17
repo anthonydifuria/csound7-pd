@@ -1,0 +1,51 @@
+name: Linux build (PD / plugdata)
+
+# Verified for real in development (aarch64 sandbox build, checked with
+# nm/file/ldd) before this workflow existed - this just automates the same
+# steps on GitHub's own ubuntu-latest (x86_64) runner. See README.md's
+# "Linux" section for the two bugs that were found and fixed along the way
+# (ALSA REQUIRED find_package, flex/m4 path).
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y bison flex m4 cmake ninja-build build-essential git
+
+      - name: Build static Csound + libsndfile + libsamplerate
+        run: bash scripts/build_csound_static.sh
+
+      - name: Configure
+        run: cmake -S . -B build/external -G Ninja -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build/external --config Release
+
+      - name: Verify external was produced
+        run: |
+          test -f externals/csound7~.pd_linux || {
+            echo "externals/csound7~.pd_linux not found - build failed silently"
+            find build/external -maxdepth 2
+            exit 1
+          }
+          file externals/csound7~.pd_linux
+          nm -D externals/csound7~.pd_linux | grep -q csound7_tilde_setup || {
+            echo "csound7_tilde_setup symbol not exported"
+            exit 1
+          }
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: csound7-pd-linux-x86_64
+          path: externals/csound7~.pd_linux

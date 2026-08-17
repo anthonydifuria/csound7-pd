@@ -1,0 +1,48 @@
+name: Windows build (PD / plugdata)
+
+# UNVERIFIED end-to-end - scripts/build_csound_static.ps1 and the Windows
+# branch of source/csound7_pd/CMakeLists.txt (the pd_stub.def stand-in
+# import library) were written from research (pure-data's own pd.cmake,
+# Csound's CMakeLists.txt) but never run on a real Windows machine. This
+# workflow is the first real test of all of it - expect to need at least
+# one round of fixes from the first failing run's logs. See README.md's
+# "Windows" section for the full reasoning behind each piece.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install bison/flex (winflexbison)
+        run: choco install winflexbison3 -y
+
+      - name: Build static Csound + libsndfile + libsamplerate
+        shell: pwsh
+        run: ./scripts/build_csound_static.ps1
+
+      - name: Configure
+        run: cmake -S . -B build/external -G "Visual Studio 17 2022" -A x64
+
+      - name: Build
+        run: cmake --build build/external --config Release
+
+      - name: Verify external was produced
+        shell: pwsh
+        run: |
+          if (-not (Test-Path "externals/csound7~.dll")) {
+            Write-Host "externals/csound7~.dll not found - build failed silently"
+            Get-ChildItem -Recurse build/external -Depth 2
+            exit 1
+          }
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: csound7-pd-windows-x64
+          path: externals/csound7~.dll
