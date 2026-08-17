@@ -1,0 +1,1 @@
+/usr/bin/cc CMakeFiles/cmTC_4b104.dir/SIZEOF_LONG.c.o -o cmTC_4b104

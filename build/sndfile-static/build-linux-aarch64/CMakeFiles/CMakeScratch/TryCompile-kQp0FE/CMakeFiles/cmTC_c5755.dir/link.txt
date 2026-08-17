@@ -1,0 +1,1 @@
+/usr/bin/c++ -v -Wl,-v CMakeFiles/cmTC_c5755.dir/CMakeCXXCompilerABI.cpp.o -o cmTC_c5755

@@ -1,0 +1,1 @@
+/usr/bin/cc CMakeFiles/cmTC_c8674.dir/CheckFunctionExists.c.o -o cmTC_c8674  -lm

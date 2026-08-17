@@ -1,0 +1,56 @@
+; pd_stub.def - Windows-only. Lists exactly the Pd API symbols csound7_pd.c
+; actually calls (confirmed by grepping the source, not guessed), so MSVC's
+; librarian (lib.exe, invoked via CMake as ${CMAKE_AR}) can generate a
+; minimal pd.lib import library to link against.
+;
+; Why this exists: a plain `git clone` of pure-data (what
+; ../../CMakeLists.txt's FetchContent gets, headers only) does not include
+; a pd.lib - that only ships inside the official Pd Windows *release*
+; (from puredata.info, not from GitHub - pure-data/pure-data has no GitHub
+; Releases at all), alongside a matching pd.dll. Depending on downloading
+; that external, version-specific archive during CI would be fragile and
+; hard to reproduce. This .def file sidesteps that entirely: real symbol
+; resolution only happens later anyway, at runtime, when Pd itself loads
+; this DLL into its own process (the exact same reason macOS gets
+; `-undefined dynamic_lookup` and Linux needs no flag at all here - MSVC is
+; just the one linker of the three that refuses to produce a DLL with any
+; unresolved symbol without an explicit stand-in like this).
+;
+; x64 only (matches every other Windows target in this project) - x64's
+; calling convention doesn't decorate extern "C" names, so these plain,
+; undecorated names are correct for /MACHINE:X64. Data symbols (plain
+; global variables, not functions) are marked DATA - garray_class and
+; s_signal are both declared as plain externs in m_pd.h/g_canvas.h, not
+; functions, and need that keyword or lib.exe will treat them as code.
+;
+; UNVERIFIED - no Windows machine available to confirm this actually
+; resolves cleanly against a real Pd.exe process. The technique itself
+; (generating a stub import lib from a hand-written symbol list, ahead of
+; ever having the real DLL) is a standard, well-established Windows
+; technique, not something improvised for this project.
+LIBRARY "pd"
+EXPORTS
+    gensym
+    class_new
+    class_domainsignalin
+    class_addmethod
+    class_addanything
+    class_addlist
+    pd_new
+    canvas_getcurrent
+    canvas_getdir
+    atom_getsymbol
+    atom_getfloat
+    pd_error
+    inlet_new
+    outlet_new
+    outlet_anything
+    sys_getsr
+    post
+    dsp_addv
+    pd_findbyclass
+    garray_getfloatwords
+    garray_redraw
+    open_via_path
+    s_signal DATA
+    garray_class DATA

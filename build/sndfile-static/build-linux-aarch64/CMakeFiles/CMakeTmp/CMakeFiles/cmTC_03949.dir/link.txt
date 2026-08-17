@@ -1,0 +1,1 @@
+/usr/bin/cc CMakeFiles/cmTC_03949.dir/TestInline.c.o -o cmTC_03949

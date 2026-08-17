@@ -1,0 +1,16 @@
+#N canvas 100 100 640 420 12;
+#X obj 240 260 csound7~ 1_sine_two_controls.csd 32;
+#X obj 240 330 dac~ 1 2;
+#X floatatom 240 60 6 50 10000 0 - - -;
+#X text 320 60 frequency (Hz) - drag/click to set;
+#X msg 240 100 freq \$1;
+#X floatatom 380 60 6 0 1 0 - - -;
+#X text 460 60 amplitude 0-1;
+#X msg 380 100 amp \$1;
+#X text 20 20 Example 1: two number boxes -> csound7~ control inlet -> stereo out.;
+#X connect 0 0 1 0;
+#X connect 0 1 1 1;
+#X connect 2 0 4 0;
+#X connect 4 0 0 0;
+#X connect 5 0 7 0;
+#X connect 7 0 0 0;

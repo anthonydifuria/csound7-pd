@@ -1,0 +1,1 @@
+/usr/bin/cc CMakeFiles/cmTC_5973d.dir/CheckFunctionExists.c.o -o cmTC_5973d  -lsqlite3 -lm

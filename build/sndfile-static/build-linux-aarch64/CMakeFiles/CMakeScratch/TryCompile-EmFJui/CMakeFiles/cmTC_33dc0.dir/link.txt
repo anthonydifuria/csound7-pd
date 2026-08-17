@@ -1,0 +1,1 @@
+/usr/bin/cc -v -Wl,-v CMakeFiles/cmTC_33dc0.dir/CMakeCCompilerABI.c.o -o cmTC_33dc0

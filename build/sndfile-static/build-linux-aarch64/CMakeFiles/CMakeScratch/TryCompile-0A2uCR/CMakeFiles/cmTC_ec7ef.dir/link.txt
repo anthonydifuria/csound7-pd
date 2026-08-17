@@ -1,0 +1,1 @@
+/usr/bin/cc CMakeFiles/cmTC_ec7ef.dir/CheckFunctionExists.c.o -o cmTC_ec7ef  -lm

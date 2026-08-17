@@ -1,0 +1,1 @@
+/usr/bin/cc CMakeFiles/cmTC_937a8.dir/SIZEOF_OFF_T.c.o -o cmTC_937a8
