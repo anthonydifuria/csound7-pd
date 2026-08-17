@@ -55,18 +55,26 @@
 #      at that exact hardcoded path - even if a perfectly good m4 is
 #      elsewhere on PATH. flex's own error message points at the fix: set
 #      the M4 environment variable to m4's real path. Handled below.
-#   3. Csound's own build links a libcsound64.so (shared) in addition to
-#      the libcsound64.a (static) we actually use - and that .so link
-#      pulls in our static libsndfile.a/libsamplerate.a. GCC on Linux does
-#      NOT default to -fPIC for static libraries (unlike macOS's clang,
-#      which always emits PIC on 64-bit), so linking non-PIC .a files into
-#      a shared object fails with "relocation R_X86_64_PC32 against symbol
-#      ... can not be used when making a shared object; recompile with
-#      -fPIC" - confirmed via a real GitHub Actions Linux run. The static
-#      target itself (csound64-static) built fine before this fix; only
-#      the unused .so failed, which still failed the whole build. Fixed by
-#      building libsndfile/libsamplerate with
-#      -DCMAKE_POSITION_INDEPENDENT_CODE=ON below.
+#   3. -fPIC, needed in two separate places, found across two separate CI
+#      runs. GCC on Linux does NOT default to -fPIC for static libraries
+#      (unlike macOS's clang, which always emits PIC on 64-bit), so any
+#      static .a whose object files end up embedded in a shared object
+#      needs it explicitly, or the final link fails with "relocation
+#      R_X86_64_PC32 against symbol ... can not be used when making a
+#      shared object; recompile with -fPIC".
+#        a. First hit while building Csound itself: its own build links a
+#           libcsound64.so (shared, unused by us) in addition to
+#           libcsound64.a (static, what we actually consume) - and that
+#           .so link pulls in our static libsndfile.a/libsamplerate.a,
+#           which weren't PIC. Fixed by adding
+#           -DCMAKE_POSITION_INDEPENDENT_CODE=ON to the libsndfile/
+#           libsamplerate cmake configure calls above.
+#        b. Second hit one level up, once (a) was fixed: linking our own
+#           csound7~.pd_linux module (itself a shared object) against
+#           libcsound64.a failed the exact same way, because Csound's own
+#           object files inside that .a weren't PIC either. Fixed by
+#           adding the same -DCMAKE_POSITION_INDEPENDENT_CODE=ON to
+#           Csound's own cmake configure call below.
 # Also: Csound's own CMakeLists.txt names its static library differently
 # depending on OS - "CsoundLib64" (-> libCsoundLib64.a) only on Apple,
 # plain "csound64" (-> libcsound64.a) everywhere else. This script doesn't
@@ -466,6 +474,7 @@ echo "    using SampleRate: $SAMPLERATE_LIB"
 cmake -S "$CSOUND_SRC" -B "$CSOUND_BUILD" -G "Unix Makefiles" \
   -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_INSTALL_PREFIX="$LINUX_INSTALL" \
+  -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
   -DBISON_EXECUTABLE="$BISON_BIN" \
   -DFLEX_EXECUTABLE="$FLEX_BIN" \
   -DSndFile_LIBRARY="$SNDFILE_LIB" \
