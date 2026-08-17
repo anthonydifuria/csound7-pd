@@ -45,7 +45,16 @@ jobs:
             exit 1
           }
 
+      # Bundle the external together with examples/ so the artifact is a
+      # ready-to-use package (not just a bare binary) - matches what
+      # actually goes into a GitHub Release.
+      - name: Prepare release package
+        run: |
+          mkdir -p release-package
+          cp externals/csound7~.pd_linux release-package/
+          cp -r examples release-package/
+
       - uses: actions/upload-artifact@v4
         with:
           name: csound7-pd-linux-x86_64
-          path: externals/csound7~.pd_linux
+          path: release-package

@@ -1,12 +1,8 @@
 name: Windows build (PD / plugdata)
 
-# UNVERIFIED end-to-end - scripts/build_csound_static.ps1 and the Windows
-# branch of source/csound7_pd/CMakeLists.txt (the pd_stub.def stand-in
-# import library) were written from research (pure-data's own pd.cmake,
-# Csound's CMakeLists.txt) but never run on a real Windows machine. This
-# workflow is the first real test of all of it - expect to need at least
-# one round of fixes from the first failing run's logs. See README.md's
-# "Windows" section for the full reasoning behind each piece.
+# Verified with real CI runs - took a few rounds of fixes (VS-generator
+# detection, dirent.h, POSIX header shims, missing pd_stub.def symbol,
+# Winsock linking). See README.md's "Windows" section for the full list.
 on:
   push:
     branches: [main]
@@ -53,7 +49,16 @@ jobs:
             exit 1
           }
 
+      # Bundle the external together with examples/ so the artifact is a
+      # ready-to-use package (not just a bare binary).
+      - name: Prepare release package
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path release-package | Out-Null
+          Copy-Item externals/csound7~.dll release-package/
+          Copy-Item examples release-package/ -Recurse
+
       - uses: actions/upload-artifact@v4
         with:
           name: csound7-pd-windows-x64
-          path: externals/csound7~.dll
+          path: release-package

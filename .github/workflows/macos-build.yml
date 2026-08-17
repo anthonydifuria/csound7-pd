@@ -37,7 +37,15 @@ jobs:
           file externals/csound7~.pd_darwin
           lipo -info externals/csound7~.pd_darwin
 
+      # Bundle the external together with examples/ so the artifact is a
+      # ready-to-use package (not just a bare binary).
+      - name: Prepare release package
+        run: |
+          mkdir -p release-package
+          cp externals/csound7~.pd_darwin release-package/
+          cp -r examples release-package/
+
       - uses: actions/upload-artifact@v4
         with:
           name: csound7-pd-macos-universal
-          path: externals/csound7~.pd_darwin
+          path: release-package
