@@ -1,4 +1,4 @@
-csound7~ (Pure Data / plugdata) - Csound 7 statically embedded in a Pd external
+csound7~ (Pure Data / plugdata) - Csound 7 embedded as a monolithic, statically-linked Pure Data / plugdata external
 Copyright (C) 2026 Anthony
 
 This program is free software: you can redistribute it and/or modify

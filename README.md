@@ -1,4 +1,4 @@
-# csound7~ — Csound 7 statically embedded in a Pure Data / plugdata external
+# csound7~ — Csound 7 embedded as a monolithic, statically-linked Pure Data / plugdata external
 
 A Pd external (`csound7~`) that embeds the Csound 7 engine **statically**
 inside the binary: no separate Csound install needed on the end user's
