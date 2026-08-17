@@ -1,3 +1,0 @@
-/Users/ant/Desktop/csound7_tilde/PD/build/external/_deps/pure-data-subbuild/CMakeFiles/pure-data-populate.dir
-/Users/ant/Desktop/csound7_tilde/PD/build/external/_deps/pure-data-subbuild/CMakeFiles/edit_cache.dir
-/Users/ant/Desktop/csound7_tilde/PD/build/external/_deps/pure-data-subbuild/CMakeFiles/rebuild_cache.dir

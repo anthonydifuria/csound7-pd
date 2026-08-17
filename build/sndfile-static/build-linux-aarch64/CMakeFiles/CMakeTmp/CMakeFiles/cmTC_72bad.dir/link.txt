@@ -1,1 +1,0 @@
-/usr/bin/cc CMakeFiles/cmTC_72bad.dir/CheckCPUArch.c.o -o cmTC_72bad

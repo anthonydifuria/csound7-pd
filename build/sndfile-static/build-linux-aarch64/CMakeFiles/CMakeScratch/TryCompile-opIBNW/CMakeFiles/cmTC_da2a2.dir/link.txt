@@ -1,1 +1,0 @@
-/usr/bin/cc CMakeFiles/cmTC_da2a2.dir/CheckFunctionExists.c.o -o cmTC_da2a2  -lm

@@ -1,1 +1,0 @@
-/usr/bin/cc CMakeFiles/cmTC_730c2.dir/CheckFunctionExists.c.o -o cmTC_730c2  -lm

@@ -1,1 +1,0 @@
-/usr/bin/cc CMakeFiles/cmTC_6c883.dir/CheckIncludeFile.c.o -o cmTC_6c883

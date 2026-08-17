@@ -1,5 +1,0 @@
-/Users/ant/Desktop/csound7_tilde/PD/build/external/CMakeFiles/edit_cache.dir
-/Users/ant/Desktop/csound7_tilde/PD/build/external/CMakeFiles/rebuild_cache.dir
-/Users/ant/Desktop/csound7_tilde/PD/build/external/source/csound7_pd/CMakeFiles/csound7_pd.dir
-/Users/ant/Desktop/csound7_tilde/PD/build/external/source/csound7_pd/CMakeFiles/edit_cache.dir
-/Users/ant/Desktop/csound7_tilde/PD/build/external/source/csound7_pd/CMakeFiles/rebuild_cache.dir

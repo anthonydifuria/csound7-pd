@@ -1,1 +1,0 @@
-/usr/bin/cc CMakeFiles/cmTC_e123c.dir/CheckFunctionExists.c.o -o cmTC_e123c  -lm

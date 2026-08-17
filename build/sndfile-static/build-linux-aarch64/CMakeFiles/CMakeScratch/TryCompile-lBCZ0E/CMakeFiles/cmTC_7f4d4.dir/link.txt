@@ -1,1 +1,0 @@
-/usr/bin/cc CMakeFiles/cmTC_7f4d4.dir/SIZEOF_WCHAR_T.c.o -o cmTC_7f4d4

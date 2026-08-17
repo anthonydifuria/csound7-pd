@@ -1,1 +1,0 @@
-/usr/bin/cc CMakeFiles/cmTC_dd667.dir/SIZEOF_OFF_T.c.o -o cmTC_dd667

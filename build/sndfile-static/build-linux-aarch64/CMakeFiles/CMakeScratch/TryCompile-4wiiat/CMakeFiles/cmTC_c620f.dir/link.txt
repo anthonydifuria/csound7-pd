@@ -1,1 +1,0 @@
-/usr/bin/cc CMakeFiles/cmTC_c620f.dir/SIZEOF_OFF_T.c.o -o cmTC_c620f

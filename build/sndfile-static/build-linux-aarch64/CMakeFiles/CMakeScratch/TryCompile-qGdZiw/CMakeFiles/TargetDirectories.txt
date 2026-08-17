@@ -1,3 +1,0 @@
-/sessions/ecstatic-eloquent-darwin/mnt/csound7_tilde/PD/build/sndfile-static/build-linux-aarch64/CMakeFiles/CMakeScratch/TryCompile-qGdZiw/CMakeFiles/cmTC_cbc61.dir
-/sessions/ecstatic-eloquent-darwin/mnt/csound7_tilde/PD/build/sndfile-static/build-linux-aarch64/CMakeFiles/CMakeScratch/TryCompile-qGdZiw/CMakeFiles/edit_cache.dir
-/sessions/ecstatic-eloquent-darwin/mnt/csound7_tilde/PD/build/sndfile-static/build-linux-aarch64/CMakeFiles/CMakeScratch/TryCompile-qGdZiw/CMakeFiles/rebuild_cache.dir

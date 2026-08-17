@@ -1,1 +1,0 @@
-/usr/bin/cc CMakeFiles/cmTC_c5f47.dir/CheckCPUArch.c.o -o cmTC_c5f47

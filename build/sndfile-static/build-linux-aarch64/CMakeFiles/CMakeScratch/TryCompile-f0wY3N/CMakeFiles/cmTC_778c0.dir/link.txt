@@ -1,1 +1,0 @@
-/usr/bin/cc CMakeFiles/cmTC_778c0.dir/CheckIncludeFile.c.o -o cmTC_778c0

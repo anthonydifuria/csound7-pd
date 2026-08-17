@@ -1,1 +1,0 @@
-/usr/bin/cc CMakeFiles/cmTC_389e9.dir/CheckIncludeFile.c.o -o cmTC_389e9
