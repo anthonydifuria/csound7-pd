@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "csound7~ — Csound 7 embedded as a monolithic, statically-linked Pure Data / plugdata external"
+authors:
+  - family-names: "Di Furia"
+    given-names: "Anthony"
+    email: "anthonydifuria.sound@gmail.com"
+version: 0.1.0
+date-released: "2026-08-18"
+url: "https://github.com/anthonydifuria/csound7-pd"
+repository-code: "https://github.com/anthonydifuria/csound7-pd"
+license: LGPL-2.1-or-later
+keywords:
+  - csound
+  - pure-data
+  - plugdata
+  - audio-programming
+  - external
+  - dsp
