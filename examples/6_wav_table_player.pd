@@ -1,4 +1,4 @@
-#N canvas 100 100 700 460 12;
+#N canvas 100 100 700 480 12;
 #X obj 40 380 csound7~ 6_wav_table_player.csd 32;
 #X obj 40 420 dac~ 1 2;
 #X obj 40 40 bng 20 250 50 0 empty empty empty 0 -8 0 8 #fcfcfc #000000 #000000;
@@ -13,7 +13,8 @@
 #X text 140 274 4 stop;
 #X msg 40 320 wavrate 1;
 #X msg 120 320 wavamp 0.7;
-#X text 220 324 optional;
+#X text 220 324 optional\, while playing;
+#X text 20 440 control messages go to the LEFTMOST inlet (opposite of the Max version - see MANUAL.md);
 #X connect 0 0 1 0;
 #X connect 0 1 1 1;
 #X connect 2 0 4 0;

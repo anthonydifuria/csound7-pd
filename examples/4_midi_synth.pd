@@ -1,4 +1,4 @@
-#N canvas 100 100 700 420 12;
+#N canvas 100 100 700 440 12;
 #X obj 40 260 csound7~ 4_midi_synth.csd 32;
 #X obj 40 330 dac~ 1 2;
 #X text 20 20 Option A: connect a MIDI keyboard (Media > MIDI Settings in Pd/plugdata) and play.;
@@ -13,6 +13,7 @@
 #X text 440 64 note on (middle C);
 #X msg 320 100 midi 144 60 0;
 #X text 440 104 note off (velocity 0);
+#X text 20 400 control messages go to the LEFTMOST inlet (opposite of the Max version - see MANUAL.md);
 #X connect 0 0 1 0;
 #X connect 0 1 1 1;
 #X connect 3 0 5 0;
