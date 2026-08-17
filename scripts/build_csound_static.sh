@@ -55,6 +55,18 @@
 #      at that exact hardcoded path - even if a perfectly good m4 is
 #      elsewhere on PATH. flex's own error message points at the fix: set
 #      the M4 environment variable to m4's real path. Handled below.
+#   3. Csound's own build links a libcsound64.so (shared) in addition to
+#      the libcsound64.a (static) we actually use - and that .so link
+#      pulls in our static libsndfile.a/libsamplerate.a. GCC on Linux does
+#      NOT default to -fPIC for static libraries (unlike macOS's clang,
+#      which always emits PIC on 64-bit), so linking non-PIC .a files into
+#      a shared object fails with "relocation R_X86_64_PC32 against symbol
+#      ... can not be used when making a shared object; recompile with
+#      -fPIC" - confirmed via a real GitHub Actions Linux run. The static
+#      target itself (csound64-static) built fine before this fix; only
+#      the unused .so failed, which still failed the whole build. Fixed by
+#      building libsndfile/libsamplerate with
+#      -DCMAKE_POSITION_INDEPENDENT_CODE=ON below.
 # Also: Csound's own CMakeLists.txt names its static library differently
 # depending on OS - "CsoundLib64" (-> libCsoundLib64.a) only on Apple,
 # plain "csound64" (-> libcsound64.a) everywhere else. This script doesn't
@@ -385,6 +397,7 @@ echo "==> building static libsndfile for Linux ($HOST_ARCH)"
 cmake -S "$SNDFILE_SRC" -B "$SNDFILE_BUILD" -G "Unix Makefiles" \
   -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_INSTALL_PREFIX="$SNDFILE_INSTALL" \
+  -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
   -DBUILD_SHARED_LIBS=OFF \
   -DBUILD_PROGRAMS=OFF \
   -DBUILD_EXAMPLES=OFF \
@@ -407,6 +420,7 @@ echo "==> building static libsamplerate for Linux ($HOST_ARCH)"
 cmake -S "$SAMPLERATE_SRC" -B "$SAMPLERATE_BUILD" -G "Unix Makefiles" \
   -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_INSTALL_PREFIX="$SAMPLERATE_INSTALL" \
+  -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
   -DBUILD_SHARED_LIBS=OFF \
   -DBUILD_TESTING=OFF \
   -DLIBSAMPLERATE_EXAMPLES=OFF \
