@@ -1,0 +1,43 @@
+name: macOS build (PD / plugdata)
+
+# Same build logic already verified locally by hand (this is the branch
+# that's been working the longest, since before Linux/Windows existed) -
+# this just automates it on GitHub's own macos-latest (Apple Silicon)
+# runner. Cross-compiles both arm64 and x86_64 into one universal binary,
+# same as a local build - no separate Intel Mac needed.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build static Csound + libsndfile + libsamplerate (universal)
+        run: bash scripts/build_csound_static.sh
+
+      - name: Configure
+        run: cmake -S . -B build/external -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build/external --config Release
+
+      - name: Verify external was produced
+        run: |
+          test -f externals/csound7~.pd_darwin || {
+            echo "externals/csound7~.pd_darwin not found - build failed silently"
+            find build/external -maxdepth 2
+            exit 1
+          }
+          file externals/csound7~.pd_darwin
+          lipo -info externals/csound7~.pd_darwin
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: csound7-pd-macos-universal
+          path: externals/csound7~.pd_darwin
