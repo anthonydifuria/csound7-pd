@@ -164,6 +164,17 @@ elseif(WIN32)
   add_custom_target(pd_stub_lib DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/pd.lib")
   add_dependencies(csound7_pd pd_stub_lib)
   target_link_libraries(csound7_pd PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/pd.lib")
+
+  # Csound's static lib bundles a UDP server/console feature
+  # (csoundUDPServerStart etc., Top/server.c / Top/socksend.c / Top/
+  # sockrecv.c / Top/remote.c) that calls straight into Winsock (bind,
+  # htons, closesocket, gethostbyname, ...) - confirmed via a real CI
+  # failure: 23 unresolved __imp_* symbols at link time, all Winsock
+  # functions. macOS/Linux get these from the C library itself (BSD
+  # sockets are part of libc there); Windows keeps them in a separate
+  # import library, ws2_32.lib, which isn't linked by default the way
+  # kernel32/user32/etc. are.
+  target_link_libraries(csound7_pd PRIVATE ws2_32)
 endif()
 
 # Linux needs no equivalent flag or stand-in library at all - confirmed

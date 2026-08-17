@@ -52,5 +52,6 @@ EXPORTS
     garray_getfloatwords
     garray_redraw
     open_via_path
+    class_gethelpdir
     s_signal DATA
     garray_class DATA
