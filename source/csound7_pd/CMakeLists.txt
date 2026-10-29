@@ -68,7 +68,10 @@ if(WIN32)
   # MSVC, unlike its Unix default) - find_library() below tries both
   # spellings rather than guessing a single one, so this doesn't need a
   # second real Windows build just to find out which.
-  find_library(CSOUND_STATIC_LIB_WIN NAMES libcsound64 csound64
+  # OLD find_library(CSOUND_STATIC_LIB_WIN NAMES libcsound64 csound64
+  #  PATHS "${CSOUND_STATIC_ROOT}/lib" NO_DEFAULT_PATH)
+  
+  find_library(CSOUND_STATIC_LIB_WIN NAMES libcsound7_64 csound7_64 libcsound64 csound64
     PATHS "${CSOUND_STATIC_ROOT}/lib" NO_DEFAULT_PATH)
   find_library(SNDFILE_STATIC_LIB_WIN NAMES libsndfile sndfile
     PATHS "${CSOUND_STATIC_ROOT}/lib" NO_DEFAULT_PATH)
