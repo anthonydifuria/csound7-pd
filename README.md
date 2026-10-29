@@ -1,7 +1,5 @@
 # csound7~ — Csound 7 embedded as a monolithic, statically-linked Pure Data / plugdata external
 
-*by Anthony Di Furia — anthonydifuria.sound@gmail.com*
-
 A Pd external (`csound7~`) that embeds the Csound 7 engine **statically**
 inside the binary: no separate Csound install needed on the end user's
 machine, no risk of version mismatch. This is the Pure Data / plugdata
